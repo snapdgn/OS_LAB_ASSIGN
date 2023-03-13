@@ -3,5 +3,5 @@
 #include <string>
 #include <vector>
 char **convert_vector_to_array(std::vector<std::string> tok);
-
+char **get_tokens(char *buf);
 #endif

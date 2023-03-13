@@ -1,5 +1,5 @@
-#include "includes/common.h"
 #include "includes/fork_exec.h"
+#include "includes/helper.h"
 // #include "includes/helper.h"
 #include "includes/redirection.h"
 #include <cstring>
@@ -44,7 +44,11 @@ int main(int argc, char **argv) {
     // char **buffer = NULL;
     // char **tokens = parseInput(buffer);
 
-    fgets(buf, 1024, stdin);
+    char *check = fgets(buf, 1024, stdin);
+    if (check == NULL) {
+      exit(0);
+    }
+    // clearerr(stdin);
 
     // char **tok = convert_vector_to_array(buf);
 
@@ -69,14 +73,18 @@ int main(int argc, char **argv) {
     Redirection red_token = check_redirection_type(tok);
 
     if (red_token == Redirection::nothing) {
-      fork_exec_new(tok, NULL, false, -1, run_in_background);
+      fork_exec_new(tok, NULL, false, -1, run_in_background, 0);
     } else if (red_token == Redirection::left) {
       if (filename != NULL) {
-        fork_exec_new(tok, filename, true, 0, run_in_background);
+        fork_exec_new(tok, filename, true, STDIN_FILENO, run_in_background, 0);
       }
     } else if (red_token == Redirection::right) {
       if (filename != NULL) {
-        fork_exec_new(tok, filename, true, 1, run_in_background);
+        fork_exec_new(tok, filename, true, STDOUT_FILENO, run_in_background, 0);
+      }
+    } else if (red_token == Redirection::append) {
+      if (filename != NULL) {
+        fork_exec_new(tok, filename, true, STDOUT_FILENO, run_in_background, 1);
       }
     }
 
