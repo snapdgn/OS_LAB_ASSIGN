@@ -68,24 +68,29 @@ int main(int argc, char **argv) {
     bool run_in_background = check_bg_process(tok, size_of_tok);
     // get filename
     // if no redirection is present, get_filename returns NULL
-    char *filename = get_filename(tok);
-    // check if rediretion is present or absent
+    // char **filename = get_filenames(tok);
+
+    std::vector<RedirectionInfo> redir = getRedirectionInfo(tok);
+
     Redirection red_token = check_redirection_type(tok);
 
-    if (red_token == Redirection::nothing) {
+    switch (red_token) {
+    case Redirection::nothing:
       fork_exec_new(tok, NULL, false, -1, run_in_background, 0);
-    } else if (red_token == Redirection::left) {
-      if (filename != NULL) {
-        fork_exec_new(tok, filename, true, STDIN_FILENO, run_in_background, 0);
-      }
-    } else if (red_token == Redirection::right) {
-      if (filename != NULL) {
-        fork_exec_new(tok, filename, true, STDOUT_FILENO, run_in_background, 0);
-      }
-    } else if (red_token == Redirection::append) {
-      if (filename != NULL) {
-        fork_exec_new(tok, filename, true, STDOUT_FILENO, run_in_background, 1);
-      }
+      break;
+
+    case Redirection::redirection:
+      cout << "comes into both" << endl;
+      handl_both_redirection(tok, redir);
+      break;
+
+    case Redirection::piping:
+      std::cout << "comes in piping" << std::endl;
+      handle_piping(tok, redir);
+      // handle piping here
+      break;
+    default:
+      break;
     }
 
     free(tok);

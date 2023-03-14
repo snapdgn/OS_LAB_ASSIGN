@@ -3,11 +3,22 @@
 
 #include <cstring>
 #include <iostream>
+#include <vector>
 
-char *get_filename(char **tok);
+struct RedirectionInfo {
+  std::string filename;
+  bool isInputRedirection;
+  bool isOutputRedirection;
+  bool isOutputAppendRedirection;
+};
 
-enum Redirection { left, right, append, background, nothing };
+std::vector<RedirectionInfo> getRedirectionInfo(char **tok);
+
+enum Redirection { nothing, redirection, piping };
 bool check_bg_process(char **tok, int len);
 Redirection check_redirection_type(char **tok);
+void handle_piping(char **tok, std::vector<RedirectionInfo>);
+
+void handl_both_redirection(char **tok, std::vector<RedirectionInfo>);
 
 #endif

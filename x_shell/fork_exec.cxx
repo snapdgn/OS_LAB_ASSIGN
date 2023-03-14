@@ -4,7 +4,7 @@
 #include <iostream>
 #include <sys/wait.h>
 
-void redirect_fd(char *file_name, int redirection_fd, int append_mode);
+void redirect_fd(const char *file_name, int redirection_fd, int append_mode);
 
 void remove_string(char ***tok) {
   if (!*tok || !*((*tok) + 1)) {
@@ -26,53 +26,38 @@ void remove_string(char ***tok) {
   }
 }
 
-void fork_exec_new(char **tok, char *filename, bool redirection,
+void fork_exec_new(char **tok, const char *filename, bool redirection,
                    int redirection_fd, bool run_in_background,
                    int append_mode) {
 
-  // std::cout << *tok << std::endl;
-  // std::cout << filename << std::endl;
   pid_t wpid;
   int status;
   pid_t pid = fork();
-  // handles redirection of file descriptor here
+
   if (pid == 0) {
     if (redirection) {
       if (filename != NULL) {
         redirect_fd(filename, redirection_fd, append_mode);
-        // redirect_fd(filename, redirection_fd, append_mode);
-
-        // remove all the other words in the tok, except 1st one, tok should
-        // remain the same
-        remove_string(&tok);
-
-        // tok = &tok[0];
-        // if (execlp(tok[0], tok[0], NULL) == -1) {
-        // fprintf(stderr, "Invalid Command: %s\n", strerror(errno));
-        //}
-        // exit(EXIT_FAILURE);
-        // return;
       }
+
+      remove_string(&tok);
     }
-    // signal(SIGINT, SIG_DFL);
-    if (execvp(tok[0], tok)) {
-      exit(0);
-    }
+
     if (execvp(tok[0], tok) == -1) {
       fprintf(stderr, "Invalid Command: %s\n", strerror(errno));
+      exit(EXIT_FAILURE);
     }
-    exit(EXIT_FAILURE);
   } else if (pid < 0) {
     perror("forking error");
   } else {
     if (!run_in_background) {
       wpid = waitpid(pid, &status, WUNTRACED);
+      // while (!WIFEXITED(status) && !WIFSIGNALED(status))
     }
   }
-  // while (!WIFEXITED(status) && !WIFSIGNALED(status))
 }
 
-void redirect_fd(char *file_name, int redirection_fd, int append_mode) {
+void redirect_fd(const char *file_name, int redirection_fd, int append_mode) {
 
   ssize_t fd = 0;
 

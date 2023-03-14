@@ -25,6 +25,10 @@ char **convert_vector_to_array(vector<std::string> tok) {
   return cstr_arr;
 }
 
+// char *convert_string_to_cstr(std::string) {
+
+//}
+
 char **get_tokens(char *buf) {
   // assumes that user passes atmost 1024 bytes
   // TODO: use reallocation if bytes exceed 1024
@@ -47,43 +51,3 @@ char **get_tokens(char *buf) {
   tok[pos] = NULL;
   return tok;
 }
-
-// char **parseInput() {
-
-//}
-
-//// Free the memory allocated for the char array
-//// for (size_t i = 0; i < len; i++) {
-//// delete[] cstr_arr[i];
-////}
-//// delete[] cstr_arr;
-////
-//// char input;
-//// char *word;
-//// char buffer[1024] = {0};
-
-// while ((input = getchar() != '\n')) {
-// if (input == '\t' || input == ' ') {
-//// push the word
-//} else {
-// word += input;
-//}
-//}
-// char input;
-// string word;
-// vector<string> buf;
-// while ((input = getchar()) != '\n') {
-// input = getchar();
-// if (input == '\t' || input == ' ') {
-// if (!word.empty()) {
-// buf.push_back(word);
-// word.clear();
-//}
-//} else {
-// word += input;
-//}
-//}
-
-//// if (!word.empty()) {
-//// buf.push_back(word);
-////}
