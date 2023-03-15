@@ -43,6 +43,27 @@ Redirection check_redirection_type(char **tok) {
   }
   return red_token;
 }
+
+void handle_vanilla(char **tok, bool run_in_background) {
+
+  int status;
+  pid_t pid = fork();
+
+  if (pid == 0) {
+    if (execvp(tok[0], tok) == -1) {
+      fprintf(stderr, "Invalid Command: %s\n", strerror(errno));
+      exit(EXIT_FAILURE);
+    }
+  } else if (pid < 0) {
+    perror("forking error");
+  } else {
+    if (!run_in_background) {
+      waitpid(pid, &status, WUNTRACED);
+      // while (!WIFEXITED(status) && !WIFSIGNALED(status))
+    }
+  }
+}
+
 // handle different scenarios of redirection
 
 void handle_piping(char **tok, std::vector<RedirectionInfo> redir) {
@@ -56,8 +77,12 @@ void handl_both_redirection(char **tok, std::vector<RedirectionInfo> redir) {
   for (size_t i = 0; i < redir.size(); i++) {
     if (redir[i].isInputRedirection) {
       fd_info[redir[i].filename] = STDIN_FILENO;
-    } else {
+    } else if (redir[i].isOutputRedirection) {
       fd_info[redir[i].filename] = STDOUT_FILENO;
+    } else if (redir[i].isOutputAppendRedirection) {
+      fd_info[redir[i].filename] = STDOUT_FILENO;
+      fd_info[redir[i].filename + ".temp"] = STDOUT_FILENO;
+      //  handle for append
     }
   }
 
@@ -70,15 +95,21 @@ void handl_both_redirection(char **tok, std::vector<RedirectionInfo> redir) {
 
   if (pid == 0) {
 
-    // open file
+    // open files appropriately
     // bool has_output_redirection = false;
+    // TODO: handle the >> redirection case
     for (auto &[filename, fd] : fd_info) {
       int file_fd;
       if (fd == STDIN_FILENO) {
         file_fd = open(filename.c_str(), O_RDONLY);
-      } else {
-        // has_output_redirection = true;
+      } else if (fd == STDOUT_FILENO) {
         file_fd = open(filename.c_str(), (O_WRONLY | O_CREAT | O_TRUNC), 0644);
+      } else {
+        if (fd_info.find(filename + ".temp") != fd_info.end()) {
+          std::cout << "comes here in append" << std::endl;
+          file_fd =
+              open(filename.c_str(), (O_WRONLY | O_CREAT | O_APPEND), 0644);
+        }
       }
       if (file_fd == -1) {
         perror("Error Opening File!!");
@@ -119,7 +150,6 @@ void handl_both_redirection(char **tok, std::vector<RedirectionInfo> redir) {
   // std::endl;
   //++it;
   //}
-  // open file descriptors accordingly
 }
 
 std::vector<RedirectionInfo> getRedirectionInfo(char **tok) {

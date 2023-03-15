@@ -76,11 +76,11 @@ int main(int argc, char **argv) {
 
     switch (red_token) {
     case Redirection::nothing:
-      fork_exec_new(tok, NULL, false, -1, run_in_background, 0);
+      handle_vanilla(tok, run_in_background);
       break;
 
     case Redirection::redirection:
-      cout << "comes into both" << endl;
+      // cout << "comes into both" << endl;
       handl_both_redirection(tok, redir);
       break;
 

@@ -12,13 +12,17 @@ struct RedirectionInfo {
   bool isOutputAppendRedirection;
 };
 
-std::vector<RedirectionInfo> getRedirectionInfo(char **tok);
+std::vector<RedirectionInfo> getRedirectionInfo(char **);
 
 enum Redirection { nothing, redirection, piping };
-bool check_bg_process(char **tok, int len);
-Redirection check_redirection_type(char **tok);
-void handle_piping(char **tok, std::vector<RedirectionInfo>);
 
-void handl_both_redirection(char **tok, std::vector<RedirectionInfo>);
+bool check_bg_process(char **, int);
+
+Redirection check_redirection_type(char **tok);
+
+void handle_vanilla(char **, bool);
+void handle_piping(char **, std::vector<RedirectionInfo>);
+
+void handl_both_redirection(char **, std::vector<RedirectionInfo>);
 
 #endif
